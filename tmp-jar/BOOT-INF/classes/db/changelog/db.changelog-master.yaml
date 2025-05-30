@@ -1,0 +1,124 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: yourname
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+        - createTable:
+            tableName: rides
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: driver_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: available_weight
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: drivers
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: requests
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: sender_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_sender
+                    references: users(id)
+              - column:
+                  name: ride_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_ride
+                    references: rides(id)
+              - column:
+                  name: goods_description
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: weight
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+                    checkConstraintName: chk_weight
+                    check: weight > 0
+              - column:
+                  name: volume
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+                    checkConstraintName: chk_volume
+                    check: volume > 0
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    checkConstraintName: chk_status
+                    check: status IN ('PENDING', 'ACCEPTED', 'DECLINED', 'ASSIGNED', 'CANCELLED')
+              - column:
+                  name: assigned_driver_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_driver
+                    references: drivers(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: true

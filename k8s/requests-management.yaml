@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: requests-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: requests-management
+  template:
+    metadata:
+      labels:
+        app: requests-management
+    spec:
+      containers:
+        - name: requests-management
+          image: premchand1/requests-management:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: postgres
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-service:5432/gdc_db
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: requests-management-secret
+                  key: jwt-secret
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: requests-management-secret
+                  key: admin-password
+            - name: DEFAULT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: requests-management-secret
+                  key: default-admin-password
+          envFrom:
+            - configMapRef:
+                name: request-config
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+---
+# Service Configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: requests-management
+spec:
+  selector:
+    app: requests-management
+  type: NodePort
+  ports:
+    - port: 8081
+      targetPort: 8081
+      nodePort: 30155
+      protocol: TCP

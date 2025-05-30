@@ -1,0 +1,113 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/gdc_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  sql:
+    init:
+      mode: never
+
+  # Spring Security Configuration
+  security:
+    user:
+      name: ${SPRING_SECURITY_USER_NAME:admin}
+      password: ${SPRING_SECURITY_USER_PASSWORD:admin123}
+      roles: ${SPRING_SECURITY_USER_ROLES:ADMIN,USER}
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka-service:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  redis:
+    host: ${SPRING_REDIS_HOST:redis-service}
+    port: ${SPRING_REDIS_PORT:6379}
+
+server:
+  port: ${SERVER_PORT:8081}
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:iimxlU5IZxO+N4VaQVoVpKzTnE63eqCRyhm9UKcZirk=}
+  expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
+
+# Admin User Configuration
+admin:
+  username: ${ADMIN_USERNAME:admin}
+  password: ${ADMIN_PASSWORD:admin123}
+  email: ${ADMIN_EMAIL:admin@gdc.com}
+
+# Application User Configuration
+app:
+  default-admin:
+    username: ${DEFAULT_ADMIN_USERNAME:admin}
+    password: ${DEFAULT_ADMIN_PASSWORD:admin123}
+    email: ${DEFAULT_ADMIN_EMAIL:admin@gdc.com}
+    roles: ADMIN,USER
+  validation:
+    skip-external: ${APP_VALIDATION_SKIP_EXTERNAL:true}  # true by default
+
+# External service URLs (override in env as needed)
+service:
+  user: ${SERVICE_USER:http://localhost:8080/api/users}
+  ride: ${SERVICE_RIDE:http://localhost:8080/api/rides}
+  driver: ${SERVICE_DRIVER:http://localhost:8080/api/drivers}
+
+# Management endpoints configuration
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+    info:
+      enabled: true
+  security:
+    enabled: false  # Disable security for actuator endpoints in development
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web.client: DEBUG
+    com.gdc.requests_management: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web: DEBUG
+    org.springframework.boot.actuate: DEBUG
+
+# Swagger/OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    disable-swagger-default-url: true
+  show-actuator: true
+
+# CORS Configuration
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://localhost:8081}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+  allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}

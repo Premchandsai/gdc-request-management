@@ -1,0 +1,113 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'java'
+}
+
+group = 'com.gdc'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    all {
+        resolutionStrategy {
+            eachDependency { details ->
+                if (details.requested.group == 'org.eclipse.jetty') {
+                    details.useVersion '11.0.15' // stable, available version
+                }
+            }
+        }
+    }
+
+    standalone {
+        extendsFrom configurations.implementation
+        exclude group: 'org.springframework'
+        exclude group: 'org.springframework.boot'
+        exclude group: 'org.springframework.kafka'
+        exclude group: 'io.jsonwebtoken'
+        exclude group: 'org.postgresql'
+        exclude group: 'org.liquibase'
+        exclude group: 'org.apache.hc'
+    }
+}
+
+dependencies {
+    // Spring Boot Core
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-security:3.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:3.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.lettuce:lettuce-core'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+
+
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka:3.2.3'
+
+    // OpenAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Database
+    implementation 'org.postgresql:postgresql:42.7.4'
+    implementation 'org.liquibase:liquibase-core:4.29.2'
+
+
+    // Servlet API
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.5'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.12.0'
+    testImplementation 'org.junit.platform:junit-platform-commons:1.12.0'
+
+    // Testcontainers (without duplicating JUnit)
+    testImplementation('org.testcontainers:testcontainers:1.20.1') {
+        exclude group: 'org.junit.jupiter'
+    }
+    testImplementation('org.testcontainers:postgresql:1.20.1') {
+        exclude group: 'org.junit.jupiter'
+    }
+    testImplementation('org.testcontainers:kafka:1.20.1') {
+        exclude group: 'org.junit.jupiter'
+    }
+    testImplementation('org.testcontainers:junit-jupiter:1.20.1') {
+        exclude group: 'org.junit.jupiter'
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.register('standaloneJar', Jar) {
+    archiveBaseName = 'requests-management-standalone'
+    archiveVersion = '0.0.1'
+    from sourceSets.main.output
+    manifest {
+        attributes 'Main-Class': 'com.gdc.requests_management.MockServer'
+    }
+    from {
+        configurations.standalone.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}

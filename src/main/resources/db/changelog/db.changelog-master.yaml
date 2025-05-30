@@ -1,0 +1,308 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1-create-tables
+      author: prem
+      changes:
+        - createTable:
+            tableName: user_info
+            schemaName: public
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: phone_number
+                  type: varchar(15)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: address
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: driver_data
+            schemaName: public
+            columns:
+              - column:
+                  name: driver_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: license_number
+                  type: varchar(15)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: date_of_birth
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: varchar(15)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+                    unique: true
+              - column:
+                  name: vehicle_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vehicle_number
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: varchar(150)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: registered_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: ride_info
+            schemaName: public
+            columns:
+              - column:
+                  name: ride_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: driver_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: origin
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: destination
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: departure_time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_available
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: requests
+            schemaName: public
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: sender_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ride_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: goods_description
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: weight
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: volume
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assigned_driver_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+        - createTable:
+            tableName: goods_info
+            schemaName: public
+            columns:
+              - column:
+                  name: goods_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ride_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: weight
+                  type: real
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: user_role_data
+            schemaName: public
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: role_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: ride_info
+            baseTableSchemaName: public
+            baseColumnNames: driver_id
+            constraintName: fk_ride_driver
+            referencedTableName: driver_data
+            referencedTableSchemaName: public
+            referencedColumnNames: driver_id
+        - addForeignKeyConstraint:
+            baseTableName: requests
+            baseTableSchemaName: public
+            baseColumnNames: sender_id
+            constraintName: fk_request_sender
+            referencedTableName: user_info
+            referencedTableSchemaName: public
+            referencedColumnNames: user_id
+        - addForeignKeyConstraint:
+            baseTableName: requests
+            baseTableSchemaName: public
+            baseColumnNames: ride_id
+            constraintName: fk_request_ride
+            referencedTableName: ride_info
+            referencedTableSchemaName: public
+            referencedColumnNames: ride_id
+        - addForeignKeyConstraint:
+            baseTableName: requests
+            baseTableSchemaName: public
+            baseColumnNames: assigned_driver_id
+            constraintName: fk_request_driver
+            referencedTableName: driver_data
+            referencedTableSchemaName: public
+            referencedColumnNames: driver_id
+        - addForeignKeyConstraint:
+            baseTableName: goods_info
+            baseTableSchemaName: public
+            baseColumnNames: user_id
+            constraintName: fk_goods_user
+            referencedTableName: user_info
+            referencedTableSchemaName: public
+            referencedColumnNames: user_id
+        - addForeignKeyConstraint:
+            baseTableName: goods_info
+            baseTableSchemaName: public
+            baseColumnNames: ride_id
+            constraintName: fk_goods_ride
+            referencedTableName: ride_info
+            referencedTableSchemaName: public
+            referencedColumnNames: ride_id
